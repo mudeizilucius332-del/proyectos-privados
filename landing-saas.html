@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nexus — AI Infrastructure Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #050508;
+    --dark: #0a0a0f;
+    --panel: #0f0f18;
+    --panel2: #141420;
+    --border: rgba(255,255,255,0.07);
+    --amber: #f5a623;
+    --amber-dim: #c4841a;
+    --amber-glow: rgba(245,166,35,0.25);
+    --amber-bg: rgba(245,166,35,0.07);
+    --text: #f0ede8;
+    --text2: rgba(240,237,232,0.55);
+    --text3: rgba(240,237,232,0.3);
+    --mono: 'JetBrains Mono', monospace;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Syne', sans-serif;
+    background: var(--black);
+    color: var(--text);
+    overflow-x: hidden;
+  }
+
+  /* scanline overlay */
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 9999;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px);
+    pointer-events: none;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    padding: 20px 48px;
+    display: flex; align-items: center; justify-content: space-between;
+    background: rgba(5,5,8,0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+  }
+  .logo {
+    font-size: 1.1rem; font-weight: 800; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--text);
+  }
+  .logo span { color: var(--amber); }
+  .nav-links { display: flex; gap: 36px; list-style: none; }
+  .nav-links a { font-size: 0.75rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text2); text-decoration: none; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--amber); }
+  .nav-btn {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.75rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+    background: var(--amber); color: var(--black);
+    border: none; padding: 10px 22px; cursor: pointer;
+    transition: box-shadow 0.2s, transform 0.2s;
+    clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+  }
+  .nav-btn:hover { box-shadow: 0 0 28px var(--amber-glow); transform: translateY(-1px); }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: grid; grid-template-columns: 1fr 1fr;
+    align-items: center;
+    padding: 120px 48px 80px;
+    position: relative;
+    gap: 60px;
+  }
+  .hero-bg-lines {
+    position: absolute; inset: 0; overflow: hidden; pointer-events: none;
+  }
+  .hero-bg-lines::before {
+    content: '';
+    position: absolute; top: 0; right: 0;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(245,166,35,0.06) 0%, transparent 70%);
+  }
+  /* animated grid */
+  .grid-anim {
+    position: absolute; inset: 0;
+    background-image: linear-gradient(rgba(245,166,35,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(245,166,35,0.04) 1px, transparent 1px);
+    background-size: 80px 80px;
+    mask-image: radial-gradient(ellipse 70% 70% at 80% 50%, black 0%, transparent 100%);
+  }
+
+  .hero-left { position: relative; z-index: 2; }
+  .hero-tag {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: var(--mono); font-size: 0.7rem; font-weight: 400;
+    color: var(--amber); letter-spacing: 0.08em;
+    border: 1px solid rgba(245,166,35,0.3);
+    padding: 5px 12px; margin-bottom: 32px;
+    background: var(--amber-bg);
+  }
+  .hero-tag::before { content: '//'; opacity: 0.6; }
+  .hero-h1 {
+    font-size: clamp(2.8rem, 5vw, 5rem);
+    font-weight: 800; line-height: 0.95;
+    letter-spacing: -0.03em;
+    text-transform: uppercase;
+    margin-bottom: 28px;
+  }
+  .hero-h1 em { font-style: normal; color: var(--amber); }
+  .hero-h1 .outline {
+    -webkit-text-stroke: 1px rgba(240,237,232,0.3);
+    color: transparent;
+  }
+  .hero-p {
+    font-family: var(--mono); font-size: 0.82rem; font-weight: 300;
+    line-height: 1.8; color: var(--text2); max-width: 420px; margin-bottom: 40px;
+  }
+  .hero-btns { display: flex; gap: 14px; align-items: center; }
+  .btn-amber {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.78rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+    background: var(--amber); color: var(--black);
+    border: none; padding: 14px 28px; cursor: pointer;
+    clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+    transition: box-shadow 0.25s, transform 0.2s; text-decoration: none; display: inline-block;
+  }
+  .btn-amber:hover { box-shadow: 0 0 40px var(--amber-glow); transform: translateY(-2px); }
+  .btn-ghost-amber {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.78rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--amber); background: transparent;
+    border: 1px solid rgba(245,166,35,0.35);
+    padding: 14px 28px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .btn-ghost-amber:hover { background: var(--amber-bg); border-color: rgba(245,166,35,0.6); }
+
+  /* terminal card */
+  .hero-right { position: relative; z-index: 2; }
+  .terminal {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+  .terminal::before { content:''; position:absolute; inset:0; background: linear-gradient(135deg, rgba(245,166,35,0.04) 0%, transparent 60%); pointer-events:none; }
+  .terminal-bar {
+    background: var(--panel2); border-bottom: 1px solid var(--border);
+    padding: 10px 16px; display: flex; align-items: center; gap: 8px;
+  }
+  .t-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .t-red { background: #ff5f57; } .t-yellow { background: #febc2e; } .t-green { background: #28c840; }
+  .t-title { font-family: var(--mono); font-size: 0.7rem; color: var(--text3); margin-left: auto; }
+  .terminal-body { padding: 24px; font-family: var(--mono); font-size: 0.76rem; line-height: 1.9; }
+  .t-line { display: flex; gap: 12px; }
+  .t-prompt { color: var(--amber); flex-shrink: 0; }
+  .t-cmd { color: var(--text); }
+  .t-comment { color: var(--text3); }
+  .t-out { color: #4ade80; padding-left: 20px; }
+  .t-out.warn { color: var(--amber); }
+  .t-cursor { display: inline-block; width: 8px; height: 14px; background: var(--amber); animation: blink 1s step-end infinite; vertical-align: middle; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+  /* stats row */
+  .stats-row {
+    display: flex; gap: 0; margin-top: 48px;
+    border: 1px solid var(--border);
+  }
+  .stat { flex: 1; padding: 20px 24px; border-right: 1px solid var(--border); }
+  .stat:last-child { border-right: none; }
+  .stat-n { font-size: 1.8rem; font-weight: 800; color: var(--amber); letter-spacing: -0.03em; }
+  .stat-l { font-family: var(--mono); font-size: 0.65rem; color: var(--text3); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.1em; }
+
+  /* ── FEATURES ── */
+  .features { padding: 120px 48px; }
+  .section-label {
+    font-family: var(--mono); font-size: 0.68rem; color: var(--amber);
+    letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 16px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .section-label::before { content: '//'; }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); max-width: 80px; }
+  .section-h2 { font-size: clamp(2rem, 4vw, 3.5rem); font-weight: 800; letter-spacing: -0.03em; text-transform: uppercase; margin-bottom: 64px; }
+  .section-h2 em { font-style: normal; color: var(--amber); }
+
+  .features-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1px; background: var(--border); }
+  .feat {
+    background: var(--panel); padding: 36px 32px;
+    transition: background 0.3s;
+  }
+  .feat:hover { background: var(--panel2); }
+  .feat-num {
+    font-family: var(--mono); font-size: 0.65rem; color: var(--text3);
+    letter-spacing: 0.1em; margin-bottom: 20px;
+  }
+  .feat-icon { font-size: 1.6rem; margin-bottom: 16px; }
+  .feat-title { font-size: 1rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; }
+  .feat-desc { font-family: var(--mono); font-size: 0.75rem; line-height: 1.75; color: var(--text2); font-weight: 300; }
+
+  /* ── PRICING ── */
+  .pricing { padding: 120px 48px; }
+  .pricing-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1px; background: var(--border); margin-top: 64px; }
+  .plan { background: var(--panel); padding: 40px 32px; position: relative; }
+  .plan.featured { background: var(--panel2); }
+  .plan-badge {
+    position: absolute; top: -1px; left: 0; right: 0;
+    text-align: center;
+    font-family: var(--mono); font-size: 0.65rem; font-weight: 500;
+    letter-spacing: 0.15em; text-transform: uppercase;
+    background: var(--amber); color: var(--black);
+    padding: 5px;
+  }
+  .plan-name { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text3); margin-bottom: 20px; margin-top: 20px; }
+  .plan.featured .plan-name { margin-top: 36px; }
+  .plan-price { font-size: 2.8rem; font-weight: 800; letter-spacing: -0.04em; color: var(--text); }
+  .plan-price span { font-family: var(--mono); font-size: 0.8rem; color: var(--text3); font-weight: 300; }
+  .plan-divider { height: 1px; background: var(--border); margin: 24px 0; }
+  .plan-features { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .plan-features li { font-family: var(--mono); font-size: 0.74rem; color: var(--text2); display: flex; gap: 10px; align-items: flex-start; line-height: 1.5; }
+  .plan-features li::before { content: '→'; color: var(--amber); flex-shrink: 0; }
+  .plan-btn { display: block; margin-top: 32px; text-align: center; padding: 13px; font-family: 'Syne', sans-serif; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; text-decoration: none; border: 1px solid var(--border); color: var(--text2); transition: all 0.2s; }
+  .plan-btn:hover { border-color: var(--amber); color: var(--amber); }
+  .plan.featured .plan-btn { background: var(--amber); color: var(--black); border-color: var(--amber); }
+  .plan.featured .plan-btn:hover { box-shadow: 0 0 28px var(--amber-glow); }
+
+  /* ── CTA ── */
+  .cta-section {
+    margin: 0 48px 120px;
+    padding: 80px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    position: relative; overflow: hidden;
+    text-align: center;
+  }
+  .cta-section::before {
+    content: '';
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+    width: 600px; height: 300px;
+    background: radial-gradient(ellipse, rgba(245,166,35,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .cta-h2 { font-size: clamp(2rem, 4vw, 3.5rem); font-weight: 800; text-transform: uppercase; letter-spacing: -0.03em; margin-bottom: 16px; position: relative; }
+  .cta-h2 em { font-style: normal; color: var(--amber); }
+  .cta-p { font-family: var(--mono); font-size: 0.8rem; color: var(--text2); margin-bottom: 40px; position: relative; }
+  .cta-btns { display: flex; justify-content: center; gap: 16px; position: relative; }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 32px 48px;
+    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;
+  }
+  .footer-logo { font-size: 0.9rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; }
+  .footer-logo span { color: var(--amber); }
+  .footer-copy { font-family: var(--mono); font-size: 0.65rem; color: var(--text3); }
+
+  /* ── ANIMATIONS ── */
+  .fade-up { opacity: 0; transform: translateY(30px); transition: opacity 0.7s cubic-bezier(0.23,1,0.32,1), transform 0.7s cubic-bezier(0.23,1,0.32,1); }
+  .fade-up.visible { opacity: 1; transform: none; }
+
+  @media(max-width:900px) {
+    .hero { grid-template-columns: 1fr; padding: 100px 24px 60px; }
+    .hero-right { display: none; }
+    .features-grid, .pricing-grid { grid-template-columns: 1fr; }
+    nav { padding: 16px 24px; }
+    nav .nav-links { display: none; }
+    .features, .pricing { padding: 80px 24px; }
+    .cta-section { margin: 0 24px 80px; padding: 48px 24px; }
+    footer { padding: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">NEX<span>US</span></div>
+  <ul class="nav-links">
+    <li><a href="#">Product</a></li>
+    <li><a href="#">Docs</a></li>
+    <li><a href="#">Pricing</a></li>
+    <li><a href="#">Blog</a></li>
+  </ul>
+  <button class="nav-btn">Get Access</button>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg-lines">
+    <div class="grid-anim"></div>
+  </div>
+
+  <div class="hero-left">
+    <div class="hero-tag">v2.4.0 — Now with autonomous agents</div>
+    <h1 class="hero-h1">
+      Ship AI<br>
+      <em>10×</em><br>
+      <span class="outline">Faster</span>
+    </h1>
+    <p class="hero-p">
+      Nexus is the infrastructure layer that lets your team deploy, monitor, and scale AI models without the ops overhead. From prototype to production in hours, not months.
+    </p>
+    <div class="hero-btns">
+      <a href="#" class="btn-amber">Start building →</a>
+      <a href="#" class="btn-ghost-amber">View docs</a>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat"><div class="stat-n">99.9%</div><div class="stat-l">Uptime SLA</div></div>
+      <div class="stat"><div class="stat-n">12ms</div><div class="stat-l">Avg latency</div></div>
+      <div class="stat"><div class="stat-n">4,200+</div><div class="stat-l">Teams using</div></div>
+    </div>
+  </div>
+
+  <div class="hero-right">
+    <div class="terminal">
+      <div class="terminal-bar">
+        <div class="t-dot t-red"></div>
+        <div class="t-dot t-yellow"></div>
+        <div class="t-dot t-green"></div>
+        <span class="t-title">nexus-cli — bash</span>
+      </div>
+      <div class="terminal-body">
+        <div class="t-line"><span class="t-prompt">$</span><span class="t-cmd">npx nexus init my-project</span></div>
+        <div class="t-line"><span class="t-out">✓ Project initialized</span></div>
+        <div class="t-line"><span class="t-out">✓ Environment configured</span></div>
+        <div class="t-line" style="margin-top:8px;"><span class="t-prompt">$</span><span class="t-cmd">nexus deploy --model gpt-4o</span></div>
+        <div class="t-line"><span class="t-out warn">⚡ Deploying to edge...</span></div>
+        <div class="t-line"><span class="t-out">✓ Live at nexus.app/my-project</span></div>
+        <div class="t-line"><span class="t-out">✓ Latency: 11ms  |  Region: af-east</span></div>
+        <div class="t-line" style="margin-top:8px;"><span class="t-prompt">$</span><span class="t-cmd">nexus monitor --watch</span></div>
+        <div class="t-line"><span class="t-comment"># Streaming live metrics...</span></div>
+        <div class="t-line"><span class="t-prompt">$</span><span class="t-cursor"></span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features">
+  <div class="section-label">Core features</div>
+  <h2 class="section-h2">Built for<br><em>engineers</em> who<br>ship.</h2>
+  <div class="features-grid">
+    <div class="feat fade-up">
+      <div class="feat-num">01 — INFRA</div>
+      <div class="feat-icon">⚡</div>
+      <div class="feat-title">One-command deploy</div>
+      <p class="feat-desc">Push any model to production with a single CLI command. Auto-scales, zero config, handles versioning and rollbacks natively.</p>
+    </div>
+    <div class="feat fade-up">
+      <div class="feat-num">02 — OBSERVE</div>
+      <div class="feat-icon">◎</div>
+      <div class="feat-title">Real-time monitoring</div>
+      <p class="feat-desc">Live latency, token throughput, error rates, and cost tracking. Alerting that actually wakes you up when something matters.</p>
+    </div>
+    <div class="feat fade-up">
+      <div class="feat-num">03 — SECURITY</div>
+      <div class="feat-icon">⬡</div>
+      <div class="feat-title">Enterprise-grade auth</div>
+      <p class="feat-desc">SOC 2 Type II. GDPR compliant. Fine-grained API keys, audit logs, and SSO out of the box. Your data never trains our models.</p>
+    </div>
+    <div class="feat fade-up">
+      <div class="feat-num">04 — SCALE</div>
+      <div class="feat-icon">▲</div>
+      <div class="feat-title">Auto-scaling edge</div>
+      <p class="feat-desc">Deploy to 32 edge regions globally. Traffic spikes absorbed automatically. 99.9% uptime SLA backed by actual engineers.</p>
+    </div>
+    <div class="feat fade-up">
+      <div class="feat-num">05 — AGENTS</div>
+      <div class="feat-icon">◈</div>
+      <div class="feat-title">Autonomous agents</div>
+      <p class="feat-desc">Orchestrate multi-step AI agents with built-in memory, tool calling, and human-in-the-loop approvals. Production-ready from day one.</p>
+    </div>
+    <div class="feat fade-up">
+      <div class="feat-num">06 — SDK</div>
+      <div class="feat-icon">⌥</div>
+      <div class="feat-title">Unified SDK</div>
+      <p class="feat-desc">One SDK for OpenAI, Anthropic, Gemini, and open-source models. Switch providers without touching your application code.</p>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing">
+  <div class="section-label">Pricing</div>
+  <h2 class="section-h2">Simple,<br><em>transparent</em> pricing.</h2>
+  <div class="pricing-grid">
+    <div class="plan">
+      <div class="plan-name">Starter</div>
+      <div class="plan-price">$0 <span>/ month</span></div>
+      <div class="plan-divider"></div>
+      <ul class="plan-features">
+        <li>3 deployed models</li>
+        <li>100K tokens/day</li>
+        <li>Community support</li>
+        <li>1 team member</li>
+        <li>Basic analytics</li>
+      </ul>
+      <a href="#" class="plan-btn">Get started</a>
+    </div>
+    <div class="plan featured">
+      <div class="plan-badge">Most popular</div>
+      <div class="plan-name">Pro</div>
+      <div class="plan-price">$79 <span>/ month</span></div>
+      <div class="plan-divider"></div>
+      <ul class="plan-features">
+        <li>Unlimited models</li>
+        <li>10M tokens/day</li>
+        <li>Priority support (4hr SLA)</li>
+        <li>10 team members</li>
+        <li>Advanced analytics + alerts</li>
+        <li>Autonomous agents</li>
+      </ul>
+      <a href="#" class="plan-btn">Start 14-day trial</a>
+    </div>
+    <div class="plan">
+      <div class="plan-name">Enterprise</div>
+      <div class="plan-price">Custom</div>
+      <div class="plan-divider"></div>
+      <ul class="plan-features">
+        <li>Unlimited everything</li>
+        <li>Dedicated infrastructure</li>
+        <li>24/7 dedicated support</li>
+        <li>Unlimited team members</li>
+        <li>SSO + SAML + audit logs</li>
+        <li>SLA up to 99.99%</li>
+      </ul>
+      <a href="#" class="plan-btn">Talk to sales</a>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<div class="cta-section">
+  <h2 class="cta-h2">Ready to ship<br><em>smarter?</em></h2>
+  <p class="cta-p">Join 4,200+ teams using Nexus to move faster. No credit card required.</p>
+  <div class="cta-btns">
+    <a href="#" class="btn-amber">Start for free →</a>
+    <a href="#" class="btn-ghost-amber">Book a demo</a>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-logo">NEX<span>US</span></div>
+  <div class="footer-copy">© 2026 Nexus Technologies Inc. — Built for builders.</div>
+</footer>
+
+<script>
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.fade-up').forEach((el, i) => {
+    el.style.transitionDelay = (i % 3) * 0.1 + 's';
+    obs.observe(el);
+  });
+</script>
+</body>
+</html>
